@@ -5,6 +5,11 @@
 # @File    : pdf_to_text.py
 # @Software: PyCharm
 
+"""
+将分布在各个文件夹中的pdf文件，通过pdfminer转化为txt文件
+同时剔除长度过短句子，以及按照从后往前的顺序剔除字符直至遇到中文句末标点
+"""
+
 from pdfminer.high_level import extract_pages
 from pdfminer.layout import LTTextContainer
 import logging
