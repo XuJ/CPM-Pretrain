@@ -6,11 +6,14 @@
 ## 安装
 
 1、首先安装pytorch等基础依赖，再安装APEX以支持fp16。
+注意：由于apex最新版本和cuda10.2/torch1.8.1莫名其妙有冲突，故回滚到较早版本。
+参考这个[issue](https://github.com/NVIDIA/apex/issues/802)
     
     pip install torch
     git clone https://github.com/NVIDIA/apex
     cd apex
     pip install -v --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
+    git checkout f3a960f80244cf9e80558ab30f7f7e8cbf03c0a0
 
 2、安装DeepSpeed，这部分更多细节请参照[DeepSpeed](https://github.com/microsoft/DeepSpeed#installation)项目安装说明。
 
@@ -112,6 +115,8 @@
         --warmup 0.01 \
 
 6、运行脚本
+
+    bash run_gpt2_preprocessing.sh
 
     bash run_t5.sh 或 bash run_gpt2.sh
 
