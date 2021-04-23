@@ -1,6 +1,6 @@
 #! /bin/bash
 
-GPUS_PER_NODE=4
+GPUS_PER_NODE=8
 # Change for multinode config
 MASTER_ADDR=localhost
 MASTER_PORT=8888
@@ -11,10 +11,10 @@ WORLD_SIZE=$(($GPUS_PER_NODE*$NNODES))
 export DLWS_NUM_WORKER=${NNODES}
 export DLWS_NUM_GPU_PER_WORKER=${GPUS_PER_NODE}
 
-WORKING_DIR=${HOME}/Megatron-LM-3D
-DATA_DIR=${HOME}/gpt2_data
+WORKING_DIR=${HOME}/code/CPM-Pretrain
+DATA_DIR=${HOME}/data
 
-DATA_PATH="${DATA_DIR}/CPM-train/data" 
+DATA_PATH="${DATA_DIR}/ShangjianTech_concat_txt/gpt2_test_text_document"
 # VOCAB_PATH=data/gpt2-vocab.json
 # MERGE_PATH=data/gpt2-merges.txt
 TOKENIZER_PATH="${DATA_DIR}/bpe_3w_new/vocab.json"
@@ -27,7 +27,7 @@ mp_size=2
 pp_size=2
 
 NLAYERS=2
-NHIDDEN=256
+NHIDDEN=128
 BATCHSIZE=4
 GAS=16
 LOGDIR="tensorboard_data/${NLAYERS}l_${NHIDDEN}h_${NNODES}n_${GPUS_PER_NODE}g_${pp_size}pp_${mp_size}mp_${BATCHSIZE}b_ds4"
@@ -94,7 +94,7 @@ deepspeed_options="${deepspeed_options} \
                 --zero-reduce-scatter"
 fi
 
-if ["${checkpoint_activations}" = "true"]; then
+if [ "${checkpoint_activations}" = "true" ]; then
 
         chkp_opt=" \
         --checkpoint-activations \
@@ -125,12 +125,12 @@ if ["${checkpoint_activations}" = "true"]; then
                 --profile-backward"
         fi
 else
-        chkp_opt = " "
+        chkp_opt=" "
 fi
 
 full_options="${gpt_options} ${deepspeed_options} ${chkp_opt}"
 
-run_cmd="deepspeed --master_port ${MASTER_PORT} -i node1:4,5,6,7 --hostfile hostfile pretrain_gpt2.py $@ ${full_options}"
+run_cmd="deepspeed pretrain_gpt2.py $@ ${full_options}"
 echo ${run_cmd}
 eval ${run_cmd}
 
