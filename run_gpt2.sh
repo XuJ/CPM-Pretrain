@@ -18,23 +18,23 @@ DATA_PATH="${DATA_DIR}/ShangjianTech_concat_txt/gpt2_test_text_document"
 # VOCAB_PATH=data/gpt2-vocab.json
 # MERGE_PATH=data/gpt2-merges.txt
 TOKENIZER_PATH="${DATA_DIR}/bpe_3w_new/vocab.json"
-CHECKPOINT_PATH=checkpoints/gpt2_345m_ds
+CHECKPOINT_PATH=checkpoints/gpt2_345m_ds_20210427_2
 config_json="${WORKING_DIR}/ds_config_gpt2.json"
 
 # Megatron Model Parallelism
 mp_size=2
 # DeepSpeed Pipeline parallelism
-pp_size=2
+pp_size=4
 
-NLAYERS=2
-NHIDDEN=128
-BATCHSIZE=4
-GAS=16
-LOGDIR="tensorboard_data/${NLAYERS}l_${NHIDDEN}h_${NNODES}n_${GPUS_PER_NODE}g_${pp_size}pp_${mp_size}mp_${BATCHSIZE}b_ds4"
+NLAYERS=32
+NHIDDEN=2560
+BATCHSIZE=32
+GAS=2
+LOGDIR="${HOME}/log/tensorboard_data/${NLAYERS}l_${NHIDDEN}h_${NNODES}n_${GPUS_PER_NODE}g_${pp_size}pp_${mp_size}mp_${BATCHSIZE}b_ds4"
 
 
 #Actication Checkpointing and Contigious Memory
-checkpoint_activations
+checkpoint_activations=true
 chkp_layers=1
 PA=true
 PA_CPU=false
@@ -48,16 +48,14 @@ gpt_options=" \
         --num-layers $NLAYERS \
         --hidden-size $NHIDDEN \
         --num-attention-heads 16 \
-        --kv-hidden-size 16 \
-        --ff-hidden-size 1024 \
-        --num-attention-heads 16 \
         --seq-length 1024 \
         --max-position-embeddings 1024 \
         --batch-size $BATCHSIZE \
         --gas $GAS \
-        --train-iters 320000 \
-        --lr-decay-iters 320000 \
+        --train-iters 100000 \
+        --lr-decay-iters 100000 \
         --save $CHECKPOINT_PATH \
+        --load $CHECKPOINT_PATH \
         --data-path $DATA_PATH \
         --data-impl mmap \
         --vocab-file $TOKENIZER_PATH\
@@ -71,9 +69,9 @@ gpt_options=" \
         --warmup 0.01 \
         --checkpoint-activations \
         --log-interval 1 \
-        --save-interval 500 \
-        --eval-interval 100 \
-        --eval-iters 10 \
+        --save-interval 50 \
+        --eval-interval 10 \
+        --eval-iters 5 \
         --fp16 \
         --hidden-bias \
         --tensorboard-dir ${LOGDIR}
